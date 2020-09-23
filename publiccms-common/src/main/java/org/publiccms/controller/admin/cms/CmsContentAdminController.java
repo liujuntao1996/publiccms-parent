@@ -30,6 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.publiccms.common.base.AbstractController;
+import org.publiccms.controller.admin.Sha256;
+import org.publiccms.controller.admin.UpChain;
 import org.publiccms.entities.cms.CmsCategory;
 import org.publiccms.entities.cms.CmsCategoryModel;
 import org.publiccms.entities.cms.CmsCategoryModelId;
@@ -120,7 +122,7 @@ public class CmsContentAdminController extends AbstractController {
      */
     @RequestMapping("save")
     public String save(CmsContent entity, CmsContentAttribute attribute, @ModelAttribute CmsContentParamters contentParamters,
-            Boolean draft, Boolean checked, HttpServletRequest request, HttpSession session, ModelMap model) {
+            Boolean draft, Boolean checked, HttpServletRequest request, HttpSession session, ModelMap model) throws InterruptedException {
         SysSite site = getSite(request);
         SysUser user = getAdminFromSession(session);
         SysDept dept = sysDeptService.getEntity(user.getDeptId());
@@ -167,11 +169,13 @@ public class CmsContentAdminController extends AbstractController {
             if (null != entity) {
                 logOperateService.save(new LogOperate(site.getId(), user.getId(), LogLoginService.CHANNEL_WEB_MANAGER,
                         "update.content", getIpAddress(request), now, getString(entity)));
+
             }
         } else {
             entity.setSiteId(site.getId());
             entity.setUserId(user.getId());
             service.save(entity);
+
             if (notEmpty(entity.getParentId())) {
                 service.updateChilds(entity.getParentId(), 1);
             } else {
@@ -179,6 +183,7 @@ public class CmsContentAdminController extends AbstractController {
             }
             logOperateService.save(new LogOperate(site.getId(), user.getId(), LogLoginService.CHANNEL_WEB_MANAGER, "save.content",
                     getIpAddress(request), now, getString(entity)));
+
         }
         Long[] tagIds = tagService.update(site.getId(), contentParamters.getTags());
         service.updateTagIds(entity.getId(), arrayToDelimitedString(tagIds, BLANK_SPACE));// 更新保存标签
@@ -215,6 +220,13 @@ public class CmsContentAdminController extends AbstractController {
         templateComponent.createContentFile(site, entity, category, categoryModel);// 静态化
         if (null != checked && checked) {
             service.check(site.getId(), user.getId(), new Long[] { entity.getId() });
+            //直接审核并发布修改处！！！！！！！！！！！！！！！！！！！！
+            String encode=entity.getTitle()+entity.getAuthor()+entity.getDescription();
+            String code= Sha256.getSHA256(encode);
+            System.out.println(code);
+            new UpChain().DataUpChain(entity.getId().toString(),code);
+
+
             if (notEmpty(entity.getParentId())) {
                 publish(new Long[] { entity.getParentId() }, request, session, model);
             }
@@ -231,7 +243,7 @@ public class CmsContentAdminController extends AbstractController {
      * @return
      */
     @RequestMapping("check")
-    public String check(Long[] ids, HttpServletRequest request, HttpSession session, ModelMap model) {
+    public String check(Long[] ids, HttpServletRequest request, HttpSession session, ModelMap model) throws InterruptedException {
         if (notEmpty(ids)) {
             SysSite site = getSite(request);
             Long userId = getAdminFromSession(session).getId();
@@ -243,6 +255,11 @@ public class CmsContentAdminController extends AbstractController {
                         publish(new Long[] { entity.getParentId() }, request, session, model);
                     }
                     publish(new Long[] { entity.getId() }, request, session, model);
+                    //发布后审核修改处！！！！！！！！！！！！
+                    String encode=entity.getTitle()+entity.getAuthor()+entity.getDescription();
+                    String code= Sha256.getSHA256(encode);
+                    System.out.println(code);
+                    new UpChain().DataUpChain(entity.getId().toString(),code);
                     categoryIdSet.add(entity.getCategoryId());
                 }
             }
@@ -398,6 +415,7 @@ public class CmsContentAdminController extends AbstractController {
             }
             logOperateService.save(new LogOperate(site.getId(), getAdminFromSession(session).getId(),
                     LogLoginService.CHANNEL_WEB_MANAGER, "static.content", getIpAddress(request), getDate(), join(ids, ',')));
+            System.out.println("publish中 static！！！！！！！！！！！！！！！！！！！！");
         }
         return TEMPLATE_DONE;
     }

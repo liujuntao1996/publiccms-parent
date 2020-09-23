@@ -91,5 +91,9 @@
     <orderEntry type="library" name="Maven: javax.mail:mail:1.4.7" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: javax.servlet:javax.servlet-api:3.1.0" level="project" />
+    <orderEntry type="library" name="Maven: cn.com.antcloud.api:antcloud-api-sdk:3.3.0" level="project" />
+    <orderEntry type="library" name="Maven: cn.com.antcloud.api:antcloud-api-iam:3.1.2" level="project" />
+    <orderEntry type="library" name="Maven: com.alibaba:fastjson:1.2.50" level="project" />
+    <orderEntry type="library" name="Maven: cn.com.antcloud.api:antcloud-api-appex:1.1.0" level="project" />
   </component>
 </module>
