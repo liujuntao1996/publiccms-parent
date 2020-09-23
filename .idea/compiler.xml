@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="publiccms-common" />
+        <module name="publiccms" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="publiccms" target="1.7" />
+      <module name="publiccms-common" target="1.7" />
+      <module name="publiccms-parent" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="publiccms" options="-extdirs src\main\webapp\WEB-INF\lib" />
+      <module name="publiccms-common" options="-extdirs src\main\webapp\WEB-INF\lib" />
+    </option>
+  </component>
+</project>
