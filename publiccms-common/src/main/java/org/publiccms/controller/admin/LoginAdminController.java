@@ -76,7 +76,6 @@ public class LoginAdminController extends AbstractController {
                     .save(new LogLogin(site.getId(), username, userId, ip, CHANNEL_WEB_MANAGER, false, getDate(), password));
             return "login";
         }
-        System.out.println("qwe");
         setAdminToSession(session, user);
         service.updateLoginStatus(user.getId(), getIpAddress(request));
         logLoginService.save(new LogLogin(site.getId(), username, user.getId(), ip, CHANNEL_WEB_MANAGER, true, getDate(), null));
