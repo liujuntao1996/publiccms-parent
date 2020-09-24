@@ -101,11 +101,15 @@ public class CmsContentAdminController extends AbstractController {
     private SysExtendService extendService;
     @Autowired
     private SysExtendFieldService extendFieldService;
+    private UpChain upChain=new UpChain();
 
     private String[] ignoreProperties = new String[] { "siteId", "userId", "categoryId", "tagIds", "sort", "createDate", "clicks",
             "comments", "scores", "childs", "checkUserId" };
 
     private String[] ignorePropertiesWithUrl = addAll(ignoreProperties, new String[] { "url" });
+
+    public CmsContentAdminController() throws InterruptedException {
+    }
 
     /**
      * 保存内容
@@ -183,6 +187,11 @@ public class CmsContentAdminController extends AbstractController {
             }
             logOperateService.save(new LogOperate(site.getId(), user.getId(), LogLoginService.CHANNEL_WEB_MANAGER, "save.content",
                     getIpAddress(request), now, getString(entity)));
+            String encode=entity.getTitle()+entity.getAuthor()+entity.getDescription()+attribute.getText();
+            System.out.println("encode"+encode);
+            String code= Sha256.getSHA256(encode);
+            System.out.println(code);
+            upChain.DataUpChain(entity.getId().toString(),code);
 
         }
         Long[] tagIds = tagService.update(site.getId(), contentParamters.getTags());
@@ -225,7 +234,7 @@ public class CmsContentAdminController extends AbstractController {
 //            String code= Sha256.getSHA256(encode);
 //            System.out.println(code);
 //            new UpChain().DataUpChain(entity.getId().toString(),code);
-
+            System.out.println("save中！！！！！！！！！！！！！！！！");
 
             if (notEmpty(entity.getParentId())) {
                 publish(new Long[] { entity.getParentId() }, request, session, model);
@@ -254,13 +263,28 @@ public class CmsContentAdminController extends AbstractController {
                     if (notEmpty(entity.getParentId())) {
                         publish(new Long[] { entity.getParentId() }, request, session, model);
                     }
-                    publish(new Long[] { entity.getId() }, request, session, model);
+
+                    String chainCode=upChain.QueryData(entity.getId().toString());
+                    String originCode=entity.getTitle()+entity.getAuthor()+entity.getDescription();
+                    System.out.println("origincode"+originCode);
+                    String secretCode= Sha256.getSHA256(originCode);
+                    System.out.println("chaincode:"+chainCode);
+                    System.out.println("secret:"+secretCode);
+                    if(secretCode.equals(chainCode)) {
+                        publish(new Long[]{entity.getId()}, request, session, model);
+                        categoryIdSet.add(entity.getCategoryId());
+                        System.out.println("发布了。。。。。。。。。。。。。。");
+                    }else {
+                        //此处本地内容的hash值与从链上获取的hash值对比不同之后的处理
+                        return TEMPLATE_ERROR;
+                    }
                     //发布后审核修改处！！！！！！！！！！！！
 //                    String encode=entity.getTitle()+entity.getAuthor()+entity.getDescription();
 //                    String code= Sha256.getSHA256(encode);
 //                    System.out.println(code);
-//                    new UpChain().DataUpChain(entity.getId().toString(),code);
-                    categoryIdSet.add(entity.getCategoryId());
+//                    upChain.DataUpChain(entity.getId().toString(),code);
+
+
                 }
             }
             for (CmsCategory category : categoryService.getEntitys(categoryIdSet.toArray(new Integer[categoryIdSet.size()]))) {
@@ -415,7 +439,7 @@ public class CmsContentAdminController extends AbstractController {
             }
             logOperateService.save(new LogOperate(site.getId(), getAdminFromSession(session).getId(),
                     LogLoginService.CHANNEL_WEB_MANAGER, "static.content", getIpAddress(request), getDate(), join(ids, ',')));
-            System.out.println("publish中 static！！！！！！！！！！！！！！！！！！！！");
+
         }
         return TEMPLATE_DONE;
     }

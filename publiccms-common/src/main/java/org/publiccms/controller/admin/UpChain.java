@@ -47,7 +47,7 @@ public class UpChain {
         QuerySolutionFastnotaryResponse querySolutionFastnotaryResponse = antFinTechApiClient.execute(querySolutionFilenotaryRequest);
         String getData=JSON.toJSONString(querySolutionFastnotaryResponse);
         System.out.println(JSON.toJSONString(querySolutionFastnotaryResponse));
-        System.out.println(getData.substring(55,119));
+        //System.out.println(getData.substring(55,119));
         return getData.substring(55,119);
     }
 }
