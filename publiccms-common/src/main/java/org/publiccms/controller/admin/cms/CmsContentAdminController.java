@@ -221,10 +221,10 @@ public class CmsContentAdminController extends AbstractController {
         if (null != checked && checked) {
             service.check(site.getId(), user.getId(), new Long[] { entity.getId() });
             //直接审核并发布修改处！！！！！！！！！！！！！！！！！！！！
-            String encode=entity.getTitle()+entity.getAuthor()+entity.getDescription();
-            String code= Sha256.getSHA256(encode);
-            System.out.println(code);
-            new UpChain().DataUpChain(entity.getId().toString(),code);
+//            String encode=entity.getTitle()+entity.getAuthor()+entity.getDescription();
+//            String code= Sha256.getSHA256(encode);
+//            System.out.println(code);
+//            new UpChain().DataUpChain(entity.getId().toString(),code);
 
 
             if (notEmpty(entity.getParentId())) {
@@ -256,10 +256,10 @@ public class CmsContentAdminController extends AbstractController {
                     }
                     publish(new Long[] { entity.getId() }, request, session, model);
                     //发布后审核修改处！！！！！！！！！！！！
-                    String encode=entity.getTitle()+entity.getAuthor()+entity.getDescription();
-                    String code= Sha256.getSHA256(encode);
-                    System.out.println(code);
-                    new UpChain().DataUpChain(entity.getId().toString(),code);
+//                    String encode=entity.getTitle()+entity.getAuthor()+entity.getDescription();
+//                    String code= Sha256.getSHA256(encode);
+//                    System.out.println(code);
+//                    new UpChain().DataUpChain(entity.getId().toString(),code);
                     categoryIdSet.add(entity.getCategoryId());
                 }
             }
